@@ -21,11 +21,14 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run tests
-        run: pytest
+      - name: Run data tests
+        run: pytest tests/test_data_validation.py
 
       - name: Validate data
         run: python src/data_validation.py
 
       - name: Train ML pipeline
         run: python src/train_pipeline.py
+
+      - name: Run prediction test
+        run: pytest tests/test_prediction.py
