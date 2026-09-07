@@ -5,6 +5,15 @@ on:
     branches:
       - main
 
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_REGISTRY: 517811334575.dkr.ecr.ap-south-1.amazonaws.com
+  ECR_REPOSITORY: loan-approval-api
+
 jobs:
   ml-pipeline:
     runs-on: ubuntu-latest
@@ -32,5 +41,23 @@ jobs:
 
       - name: Run prediction test
         run: pytest tests/test_prediction.py
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: arn:aws:iam::517811334575:role/GitHubActionsLoanApprovalRole
+          aws-region: ap-south-1
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
       - name: Build Docker image
-        run: docker build -t loan-approval-api:${{ github.sha }} .
+        run: |
+          docker build --platform linux/amd64 \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }} \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+
+      - name: Push Docker image to ECR
+        run: |
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }}
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
