@@ -32,3 +32,5 @@ jobs:
 
       - name: Run prediction test
         run: pytest tests/test_prediction.py
+      - name: Build Docker image
+        run: docker build -t loan-approval-api:${{ github.sha }} .
