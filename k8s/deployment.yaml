@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loan-approval-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loan-approval-api
+  template:
+    metadata:
+      labels:
+        app: loan-approval-api
+    spec:
+      containers:
+        - name: loan-approval-api
+          image: 517811334575.dkr.ecr.ap-south-1.amazonaws.com/loan-approval-api:latest
+          ports:
+            - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loan-approval-api
+spec:
+  selector:
+    app: loan-approval-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: LoadBalancer
